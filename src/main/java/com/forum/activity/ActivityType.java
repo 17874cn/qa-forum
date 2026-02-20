@@ -1,0 +1,14 @@
+package com.forum.activity;
+
+public enum ActivityType {
+    USER_REGISTERED,
+    USER_LOGIN_SUCCESS,
+    USER_LOGIN_FAILED,
+    QUESTION_CREATED,
+    QUESTION_UPDATED,
+    QUESTION_DELETED,
+    ANSWER_CREATED,
+    ANSWER_VOTED,
+    ANSWER_ACCEPTED,
+    SEARCH_PERFORMED
+}

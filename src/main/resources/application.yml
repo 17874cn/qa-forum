@@ -1,0 +1,37 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/qa-forum
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: qa-forum-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+
+# Embedded MongoDB
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.0
+
+server:
+  port: 8080
+
+# Thread pool sizes (custom schedulers for resource isolation)
+forum:
+  threadPool:
+    questionFetch: 5
+    answerFetch: 5
+    searchProcessing: 3
+    voteCalculation: 3
+    batchProcessing: 5
