@@ -43,4 +43,9 @@ public class QuestionController {
     public Mono<Void> delete(@PathVariable String id) {
         return questionService.delete(id);
     }
+
+    @GetMapping("/{id}/answer-ids")
+    public Flux<String> getAnswerIds(@PathVariable String id) {
+        return questionService.getAnswerIdsByQuestionId(id);
+    }
 }

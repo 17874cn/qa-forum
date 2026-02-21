@@ -5,6 +5,7 @@ import com.forum.activity.ActivityType;
 import com.forum.event.ForumEvent;
 import com.forum.kafka.KafkaProducerService;
 import com.forum.model.Question;
+import com.forum.repository.AnswerRepository;
 import com.forum.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -21,15 +22,18 @@ import java.util.Map;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
+    private final AnswerRepository answerRepository;
     private final KafkaProducerService kafkaProducerService;
     private final ActivityLogService activityLogService;
     private final Scheduler questionFetchScheduler;
 
     public QuestionService(QuestionRepository questionRepository,
+                           AnswerRepository answerRepository,
                            KafkaProducerService kafkaProducerService,
                            ActivityLogService activityLogService,
                            @Qualifier("questionFetchScheduler") Scheduler questionFetchScheduler) {
         this.questionRepository = questionRepository;
+        this.answerRepository = answerRepository;
         this.kafkaProducerService = kafkaProducerService;
         this.activityLogService = activityLogService;
         this.questionFetchScheduler = questionFetchScheduler;
@@ -94,5 +98,12 @@ public class QuestionService {
                                 question.getId())
                 )
                 .flatMap(question -> questionRepository.deleteById(id));
+    }
+
+    public Flux<String> getAnswerIdsByQuestionId(String questionId) {
+        return findById(questionId)
+                .publishOn(questionFetchScheduler)
+                .thenMany(answerRepository.findByQuestionId(questionId)
+                        .map(answer -> answer.getId()));
     }
 }
