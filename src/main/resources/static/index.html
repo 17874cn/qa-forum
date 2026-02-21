@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Forum</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f6f6f6;
+      --surface: #ffffff;
+      --border: #e3e6ea;
+      --primary: #0a7bd6;
+      --primary-dark: #0869b5;
+      --primary-light: #e8f3fd;
+      --success: #2e7d32;
+      --success-bg: #e8f5e9;
+      --danger: #c62828;
+      --danger-bg: #ffebee;
+      --text: #232629;
+      --text-muted: #6a737c;
+      --tag-bg: #e1ecf4;
+      --tag-text: #39739d;
+      --accepted: #2e7d32;
+      --vote-up: #0a7bd6;
+      --vote-down: #e44232;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+    .nav-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      gap: 12px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary);
+      text-decoration: none;
+      cursor: pointer;
+      letter-spacing: -0.5px;
+    }
+    .nav-brand span { color: var(--text); }
+    .nav-spacer { flex: 1; }
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .nav-username { font-weight: 600; color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* ── AUTH ── */
+    .auth-wrap {
+      min-height: calc(100vh - 52px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+    }
+    .auth-card h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .auth-card p.subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    input[type=text], input[type=email], textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    input[type=text]:focus, input[type=email]:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10,123,214,0.12);
+    }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--primary); border-color: var(--primary); }
+    .btn-outline:hover:not(:disabled) { background: var(--primary-light); }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); border-color: #ffcdd2; }
+    .btn-danger:hover:not(:disabled) { background: #ffcdd2; }
+    .btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border); }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+    .btn-sm { padding: 5px 10px; font-size: 13px; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── ALERTS ── */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-error { background: var(--danger-bg); color: var(--danger); border: 1px solid #ffcdd2; }
+    .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #c8e6c9; }
+
+    /* ── QUESTIONS LIST ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .page-header h1 { font-size: 22px; }
+    .question-count { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+
+    .search-bar {
+      margin-bottom: 16px;
+    }
+    .search-bar input {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .question-list { display: flex; flex-direction: column; gap: 0; }
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border-bottom: none;
+    }
+    .question-card:first-child { border-radius: 8px 8px 0 0; }
+    .question-card:last-child { border-radius: 0 0 8px 8px; border-bottom: 1px solid var(--border); }
+    .question-card:only-child { border-radius: 8px; border-bottom: 1px solid var(--border); }
+    .question-card:hover { background: #fafbfc; }
+
+    .q-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 56px;
+      flex-shrink: 0;
+    }
+    .stat-box {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .stat-box .num {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .q-content { flex: 1; min-width: 0; }
+    .q-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .q-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.5;
+    }
+    .q-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .q-meta {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; margin-bottom: 20px; }
+
+    /* ── QUESTION DETAIL ── */
+    .detail-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .detail-nav a {
+      font-size: 14px;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .detail-nav a:hover { text-decoration: underline; }
+    .breadcrumb-sep { color: var(--text-muted); }
+
+    .question-detail-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .question-detail-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .question-detail-title {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+    .question-meta-row {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .question-detail-body {
+      display: flex;
+      gap: 0;
+      padding: 20px 24px;
+    }
+    .vote-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-right: 24px;
+      flex-shrink: 0;
+    }
+    .vote-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.15s;
+      color: var(--text-muted);
+    }
+    .vote-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .vote-count {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      min-width: 36px;
+    }
+    .body-text { flex: 1; font-size: 15px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+    .question-detail-footer {
+      padding: 12px 24px;
+      background: #fafbfc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── ANSWERS ── */
+    .answers-section { margin-bottom: 24px; }
+    .answers-header {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .answers-count {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 12px;
+      padding: 1px 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .answer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .answer-card.accepted {
+      border-color: var(--accepted);
+      box-shadow: 0 0 0 1px var(--accepted);
+    }
+    .answer-body-wrap {
+      display: flex;
+      gap: 0;
+      padding: 20px 24px;
+    }
+    .accepted-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--success-bg);
+      color: var(--accepted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .answer-footer {
+      padding: 10px 24px;
+      background: #fafbfc;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .answer-footer .btn { margin-left: auto; }
+
+    /* ── POST ANSWER ── */
+    .post-answer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    .post-answer-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+    /* ── ASK QUESTION ── */
+    .ask-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+      max-width: 720px;
+    }
+    .ask-card h1 { font-size: 22px; margin-bottom: 6px; }
+    .ask-card .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .tags-input-wrap {
+      position: relative;
+    }
+    .tag-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── LOADING ── */
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 40px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap { text-align: center; padding: 40px; }
+
+    /* ── LOGOUT / USER BAR ── */
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-logout:hover { background: var(--bg); color: var(--text); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #232629;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 999;
+      max-width: 320px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { background: var(--success); }
+    #toast.error { background: var(--danger); }
+
+    @media (max-width: 600px) {
+      .question-detail-body, .answer-body-wrap { flex-direction: column; }
+      .vote-col { flex-direction: row; margin-right: 0; margin-bottom: 12px; }
+      .question-detail-title { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand" onclick="goHome()">QA<span>Forum</span></span>
+    <div class="nav-spacer"></div>
+    <div class="nav-user" id="navUser" style="display:none;">
+      <div class="avatar" id="navAvatar"></div>
+      <span class="nav-username" id="navUsername"></span>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════ AUTH PAGE ══════════════ -->
+<div class="page active" id="page-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2>Welcome to QA Forum</h2>
+      <p class="subtitle">A community for questions and answers</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="tab-panel active" id="tab-login">
+        <div class="alert alert-error" id="login-error"></div>
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" placeholder="Enter your username" />
+        </div>
+        <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">Sign In</button>
+        <p style="margin-top:14px; font-size:13px; color:var(--text-muted); text-align:center;">
+          No account? <a href="#" onclick="switchTab('register')" style="color:var(--primary);">Create one</a>
+        </p>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="tab-panel" id="tab-register">
+        <div class="alert alert-error" id="register-error"></div>
+        <div class="alert alert-success" id="register-success"></div>
+        <div class="form-group">
+          <label for="reg-username">Username <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="reg-username" placeholder="e.g. johndoe" />
+        </div>
+        <div class="form-group">
+          <label for="reg-displayname">Display Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="reg-displayname" placeholder="e.g. John Doe" />
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email <span style="color:var(--danger)">*</span></label>
+          <input type="email" id="reg-email" placeholder="e.g. john@example.com" />
+        </div>
+        <button class="btn btn-primary btn-full" id="register-btn" onclick="doRegister()">Create Account</button>
+        <p style="margin-top:14px; font-size:13px; color:var(--text-muted); text-align:center;">
+          Already have an account? <a href="#" onclick="switchTab('login')" style="color:var(--primary);">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ QUESTIONS LIST PAGE ══════════════ -->
+<div class="page" id="page-questions">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>All Questions</h1>
+        <div class="question-count" id="q-count"></div>
+      </div>
+      <button class="btn btn-primary" onclick="showAskPage()">+ Ask Question</button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search questions..." oninput="filterQuestions()" />
+    </div>
+
+    <div id="questions-loading" class="loading-wrap"><div class="spinner"></div></div>
+    <div class="question-list" id="question-list"></div>
+    <div class="empty-state" id="questions-empty" style="display:none;">
+      <div class="icon">🔍</div>
+      <h3>No questions yet</h3>
+      <p>Be the first to ask a question!</p>
+      <button class="btn btn-primary" onclick="showAskPage()">Ask Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ASK QUESTION PAGE ══════════════ -->
+<div class="page" id="page-ask">
+  <div class="container">
+    <div class="detail-nav">
+      <a onclick="showQuestionsPage()">Questions</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Ask a Question</span>
+    </div>
+    <div class="ask-card">
+      <h1>Ask a Question</h1>
+      <p class="subtitle">Be specific and clear — good questions get great answers</p>
+      <div class="alert alert-error" id="ask-error"></div>
+      <div class="form-group">
+        <label for="ask-title">Title <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="ask-title" placeholder="What's your question? Be specific." />
+      </div>
+      <div class="form-group">
+        <label for="ask-body">Body <span style="color:var(--danger)">*</span></label>
+        <textarea id="ask-body" rows="8" placeholder="Describe your problem in detail. Include what you've tried and what you expected to happen."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="ask-tags">Tags</label>
+        <input type="text" id="ask-tags" placeholder="e.g. java, spring, mongodb (comma separated)" />
+        <div class="tag-hint">Add up to 5 tags to describe what your question is about</div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        <button class="btn btn-primary" id="ask-submit-btn" onclick="submitQuestion()">Post Question</button>
+        <button class="btn btn-ghost" onclick="showQuestionsPage()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ QUESTION DETAIL PAGE ══════════════ -->
+<div class="page" id="page-detail">
+  <div class="container">
+    <div class="detail-nav">
+      <a onclick="showQuestionsPage()">Questions</a>
+      <span class="breadcrumb-sep">›</span>
+      <span id="detail-breadcrumb" style="color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:300px;"></span>
+    </div>
+
+    <div id="detail-loading" class="loading-wrap"><div class="spinner"></div></div>
+    <div id="detail-content" style="display:none;">
+
+      <!-- Question -->
+      <div class="question-detail-card">
+        <div class="question-detail-header">
+          <div class="question-detail-title" id="detail-title"></div>
+          <div class="question-meta-row">
+            <span>Asked by <strong id="detail-author"></strong></span>
+            <span id="detail-date"></span>
+          </div>
+        </div>
+        <div class="question-detail-body">
+          <div class="vote-col">
+            <button class="vote-btn" title="Vote up" onclick="voteQuestion(1)">▲</button>
+            <div class="vote-count" id="detail-votes">0</div>
+            <button class="vote-btn" title="Vote down" onclick="voteQuestion(-1)">▼</button>
+          </div>
+          <div class="body-text" id="detail-body"></div>
+        </div>
+        <div class="question-detail-footer" id="detail-tags-row"></div>
+      </div>
+
+      <!-- Answers -->
+      <div class="answers-section">
+        <div class="answers-header">
+          Answers <span class="answers-count" id="answers-count">0</span>
+        </div>
+        <div id="answers-loading" class="loading-wrap" style="display:none;"><div class="spinner"></div></div>
+        <div id="answers-list"></div>
+        <div class="empty-state" id="answers-empty" style="display:none; padding:30px 0;">
+          <div class="icon">💬</div>
+          <h3>No answers yet</h3>
+          <p>Be the first to answer this question!</p>
+        </div>
+      </div>
+
+      <!-- Post Answer -->
+      <div class="post-answer-card">
+        <h3>Your Answer</h3>
+        <div class="alert alert-error" id="answer-error"></div>
+        <div class="form-group">
+          <textarea id="answer-body" rows="6" placeholder="Write a clear, detailed answer. Use examples if helpful."></textarea>
+        </div>
+        <button class="btn btn-primary" id="answer-submit-btn" onclick="submitAnswer()">Post Answer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  // ══════════════════════════════════════════
+  // CONFIG
+  // ══════════════════════════════════════════
+  const API = '';  // same-origin, served by Spring Boot on :8081
+
+  // ══════════════════════════════════════════
+  // STATE
+  // ══════════════════════════════════════════
+  let currentUser = null;
+  let allQuestions = [];
+  let currentQuestion = null;
+
+  // ══════════════════════════════════════════
+  // INIT
+  // ══════════════════════════════════════════
+  (function init() {
+    const saved = sessionStorage.getItem('qa_user');
+    if (saved) {
+      currentUser = JSON.parse(saved);
+      updateNav();
+      showQuestionsPage();
+    }
+  })();
+
+  // ══════════════════════════════════════════
+  // NAV & PAGE ROUTING
+  // ══════════════════════════════════════════
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function goHome() {
+    if (currentUser) showQuestionsPage();
+    else showPage('auth');
+  }
+
+  function showQuestionsPage() {
+    showPage('questions');
+    loadQuestions();
+  }
+
+  function showAskPage() {
+    showPage('ask');
+    document.getElementById('ask-title').value = '';
+    document.getElementById('ask-body').value = '';
+    document.getElementById('ask-tags').value = '';
+    hideAlert('ask-error');
+  }
+
+  function showDetailPage(question) {
+    currentQuestion = question;
+    showPage('detail');
+    renderQuestionDetail(question);
+    loadAnswers(question.id);
+  }
+
+  function updateNav() {
+    if (currentUser) {
+      document.getElementById('navUser').style.display = 'flex';
+      document.getElementById('navAvatar').textContent = (currentUser.displayName || currentUser.username)[0].toUpperCase();
+      document.getElementById('navUsername').textContent = currentUser.displayName || currentUser.username;
+    } else {
+      document.getElementById('navUser').style.display = 'none';
+    }
+  }
+
+  function logout() {
+    currentUser = null;
+    sessionStorage.removeItem('qa_user');
+    allQuestions = [];
+    updateNav();
+    showPage('auth');
+    switchTab('login');
+  }
+
+  // ══════════════════════════════════════════
+  // TABS (Auth)
+  // ══════════════════════════════════════════
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+    });
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  }
+
+  // ══════════════════════════════════════════
+  // API HELPERS
+  // ══════════════════════════════════════════
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API + path, {
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options,
+    });
+    if (!res.ok) {
+      let msg = `HTTP ${res.status}`;
+      try { const body = await res.json(); msg = body.message || body.error || msg; } catch (_) {}
+      throw new Error(msg);
+    }
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  // ══════════════════════════════════════════
+  // AUTH
+  // ══════════════════════════════════════════
+  async function doLogin() {
+    hideAlert('login-error');
+    const username = document.getElementById('login-username').value.trim();
+    if (!username) { showAlert('login-error', 'Please enter your username.'); return; }
+
+    setLoading('login-btn', true, 'Signing in…');
+    try {
+      const user = await apiFetch('/api/users/login', {
+        method: 'POST',
+        body: JSON.stringify({ username }),
+      });
+      currentUser = user;
+      sessionStorage.setItem('qa_user', JSON.stringify(user));
+      updateNav();
+      showQuestionsPage();
+      toast('Welcome back, ' + (user.displayName || user.username) + '!', 'success');
+    } catch (e) {
+      showAlert('login-error', e.message === 'HTTP 401' ? 'User not found. Check your username.' : e.message);
+    } finally {
+      setLoading('login-btn', false, 'Sign In');
+    }
+  }
+
+  async function doRegister() {
+    hideAlert('register-error');
+    hideAlert('register-success');
+    const username = document.getElementById('reg-username').value.trim();
+    const displayName = document.getElementById('reg-displayname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+
+    if (!username || !displayName || !email) {
+      showAlert('register-error', 'All fields are required.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showAlert('register-error', 'Please enter a valid email address.');
+      return;
+    }
+
+    setLoading('register-btn', true, 'Creating account…');
+    try {
+      await apiFetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({ username, displayName, email }),
+      });
+      showAlert('register-success', 'Account created! You can now sign in.');
+      document.getElementById('reg-username').value = '';
+      document.getElementById('reg-displayname').value = '';
+      document.getElementById('reg-email').value = '';
+      setTimeout(() => switchTab('login'), 1200);
+    } catch (e) {
+      showAlert('register-error', 'Registration failed: ' + e.message);
+    } finally {
+      setLoading('register-btn', false, 'Create Account');
+    }
+  }
+
+  // Enter key support
+  document.getElementById('login-username').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('reg-email').addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+
+  // ══════════════════════════════════════════
+  // QUESTIONS LIST
+  // ══════════════════════════════════════════
+  async function loadQuestions() {
+    document.getElementById('questions-loading').style.display = 'block';
+    document.getElementById('question-list').innerHTML = '';
+    document.getElementById('questions-empty').style.display = 'none';
+
+    try {
+      allQuestions = await apiFetch('/api/questions');
+      renderQuestions(allQuestions);
+    } catch (e) {
+      toast('Failed to load questions: ' + e.message, 'error');
+    } finally {
+      document.getElementById('questions-loading').style.display = 'none';
+    }
+  }
+
+  function renderQuestions(questions) {
+    const list = document.getElementById('question-list');
+    const empty = document.getElementById('questions-empty');
+    const countEl = document.getElementById('q-count');
+
+    countEl.textContent = questions.length + ' question' + (questions.length !== 1 ? 's' : '');
+
+    if (!questions.length) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    list.innerHTML = questions.map(q => `
+      <div class="question-card" onclick="openQuestion('${q.id}')">
+        <div class="q-stats">
+          <div class="stat-box"><span class="num">${q.votes || 0}</span>votes</div>
+        </div>
+        <div class="q-content">
+          <div class="q-title">${escHtml(q.title)}</div>
+          <div class="q-body">${escHtml(q.body || '')}</div>
+          <div class="q-footer">
+            ${(q.tags || []).map(t => `<span class="tag">${escHtml(t)}</span>`).join('')}
+            <span class="q-meta">${relativeTime(q.createdAt)}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterQuestions() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    if (!q) { renderQuestions(allQuestions); return; }
+    const filtered = allQuestions.filter(item =>
+      (item.title || '').toLowerCase().includes(q) ||
+      (item.body || '').toLowerCase().includes(q) ||
+      (item.tags || []).some(t => t.toLowerCase().includes(q))
+    );
+    renderQuestions(filtered);
+  }
+
+  async function openQuestion(id) {
+    // find in cache first
+    const cached = allQuestions.find(q => q.id === id);
+    if (cached) { showDetailPage(cached); return; }
+    try {
+      const q = await apiFetch('/api/questions/' + id);
+      showDetailPage(q);
+    } catch (e) {
+      toast('Could not load question: ' + e.message, 'error');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // QUESTION DETAIL
+  // ══════════════════════════════════════════
+  function renderQuestionDetail(q) {
+    document.getElementById('detail-loading').style.display = 'none';
+    document.getElementById('detail-content').style.display = 'block';
+
+    document.getElementById('detail-breadcrumb').textContent = q.title;
+    document.getElementById('detail-title').textContent = q.title;
+    document.getElementById('detail-author').textContent = q.authorId || 'Anonymous';
+    document.getElementById('detail-date').textContent = formatDate(q.createdAt);
+    document.getElementById('detail-votes').textContent = q.votes || 0;
+    document.getElementById('detail-body').textContent = q.body || '';
+
+    const tagsRow = document.getElementById('detail-tags-row');
+    tagsRow.innerHTML = (q.tags || []).map(t => `<span class="tag">${escHtml(t)}</span>`).join('') || '<span style="color:var(--text-muted);font-size:13px;">No tags</span>';
+
+    // clear answer form
+    document.getElementById('answer-body').value = '';
+    hideAlert('answer-error');
+  }
+
+  async function voteQuestion(delta) {
+    if (!currentQuestion) return;
+    try {
+      // No direct vote endpoint for questions in current API; update votes locally
+      const updated = await apiFetch('/api/questions/' + currentQuestion.id, {
+        method: 'PUT',
+        body: JSON.stringify({ ...currentQuestion, votes: (currentQuestion.votes || 0) + delta }),
+      });
+      currentQuestion = updated;
+      document.getElementById('detail-votes').textContent = updated.votes;
+      // sync in list cache
+      const idx = allQuestions.findIndex(q => q.id === updated.id);
+      if (idx !== -1) allQuestions[idx] = updated;
+    } catch (e) {
+      toast('Vote failed: ' + e.message, 'error');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // ANSWERS
+  // ══════════════════════════════════════════
+  async function loadAnswers(questionId) {
+    document.getElementById('answers-loading').style.display = 'block';
+    document.getElementById('answers-list').innerHTML = '';
+    document.getElementById('answers-empty').style.display = 'none';
+
+    try {
+      const answers = await apiFetch('/api/questions/' + questionId + '/answers');
+      renderAnswers(answers);
+    } catch (e) {
+      toast('Failed to load answers: ' + e.message, 'error');
+    } finally {
+      document.getElementById('answers-loading').style.display = 'none';
+    }
+  }
+
+  function renderAnswers(answers) {
+    const list = document.getElementById('answers-list');
+    const empty = document.getElementById('answers-empty');
+    const countEl = document.getElementById('answers-count');
+
+    countEl.textContent = answers.length;
+
+    if (!answers.length) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    // Sort: accepted first, then by votes
+    const sorted = [...answers].sort((a, b) => {
+      if (a.accepted && !b.accepted) return -1;
+      if (!a.accepted && b.accepted) return 1;
+      return (b.votes || 0) - (a.votes || 0);
+    });
+
+    list.innerHTML = sorted.map(a => `
+      <div class="answer-card ${a.accepted ? 'accepted' : ''}" id="answer-${a.id}">
+        <div class="answer-body-wrap">
+          <div class="vote-col">
+            <button class="vote-btn" title="Vote up" onclick="voteAnswer('${a.id}', 1)">▲</button>
+            <div class="vote-count">${a.votes || 0}</div>
+            <button class="vote-btn" title="Vote down" onclick="voteAnswer('${a.id}', -1)">▼</button>
+          </div>
+          <div class="body-text">${escHtml(a.body || '')}</div>
+        </div>
+        <div class="answer-footer">
+          ${a.accepted ? '<span class="accepted-badge">✓ Accepted</span>' : ''}
+          <span>By <strong>${escHtml(a.authorId || 'Anonymous')}</strong> · ${relativeTime(a.createdAt)}</span>
+          ${!a.accepted ? `<button class="btn btn-sm btn-outline" onclick="acceptAnswer('${a.id}')">✓ Accept</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function voteAnswer(answerId, delta) {
+    try {
+      const updated = await apiFetch('/api/answers/' + answerId + '/vote', {
+        method: 'PUT',
+        body: JSON.stringify({ delta }),
+      });
+      // update vote count in DOM
+      const card = document.getElementById('answer-' + answerId);
+      if (card) card.querySelector('.vote-count').textContent = updated.votes;
+    } catch (e) {
+      toast('Vote failed: ' + e.message, 'error');
+    }
+  }
+
+  async function acceptAnswer(answerId) {
+    try {
+      await apiFetch('/api/answers/' + answerId + '/accept', { method: 'PUT' });
+      toast('Answer accepted!', 'success');
+      loadAnswers(currentQuestion.id);
+    } catch (e) {
+      toast('Could not accept answer: ' + e.message, 'error');
+    }
+  }
+
+  async function submitAnswer() {
+    hideAlert('answer-error');
+    const body = document.getElementById('answer-body').value.trim();
+    if (!body) { showAlert('answer-error', 'Please write an answer before posting.'); return; }
+    if (!currentQuestion) return;
+
+    setLoading('answer-submit-btn', true, 'Posting…');
+    try {
+      await apiFetch('/api/questions/' + currentQuestion.id + '/answers', {
+        method: 'POST',
+        body: JSON.stringify({
+          body,
+          authorId: currentUser?.id || currentUser?.username || 'anonymous',
+          questionId: currentQuestion.id,
+        }),
+      });
+      document.getElementById('answer-body').value = '';
+      toast('Answer posted!', 'success');
+      loadAnswers(currentQuestion.id);
+    } catch (e) {
+      showAlert('answer-error', 'Failed to post answer: ' + e.message);
+    } finally {
+      setLoading('answer-submit-btn', false, 'Post Answer');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // ASK QUESTION
+  // ══════════════════════════════════════════
+  async function submitQuestion() {
+    hideAlert('ask-error');
+    const title = document.getElementById('ask-title').value.trim();
+    const body = document.getElementById('ask-body').value.trim();
+    const tagsRaw = document.getElementById('ask-tags').value.trim();
+
+    if (!title) { showAlert('ask-error', 'Title is required.'); return; }
+    if (!body) { showAlert('ask-error', 'Body is required.'); return; }
+
+    const tags = tagsRaw
+      ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean).slice(0, 5)
+      : [];
+
+    setLoading('ask-submit-btn', true, 'Posting…');
+    try {
+      const created = await apiFetch('/api/questions', {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          body,
+          tags,
+          authorId: currentUser?.id || currentUser?.username || 'anonymous',
+        }),
+      });
+      toast('Question posted!', 'success');
+      allQuestions.unshift(created);
+      showDetailPage(created);
+    } catch (e) {
+      showAlert('ask-error', 'Failed to post question: ' + e.message);
+    } finally {
+      setLoading('ask-submit-btn', false, 'Post Question');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // UI HELPERS
+  // ══════════════════════════════════════════
+  function showAlert(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function hideAlert(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('show');
+  }
+
+  function setLoading(btnId, loading, label) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = label;
+  }
+
+  let toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (type ? ' ' + type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function relativeTime(iso) {
+    if (!iso) return '';
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return days + 'd ago';
+    return formatDate(iso);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+</script>
+</body>
+</html>
